@@ -1,0 +1,21 @@
+td{
+   
+    border-color: gainsboro ;
+    border-style: solid;
+    border-width: 0.02px;
+}   
+body{
+    width: 800px;
+
+    margin: 0 auto;
+}
+table{
+    width: 600px;
+    height:  600px;
+}
+.isLive{
+    background-color: crimson;
+}
+.isDead{
+    background-color: white;
+}

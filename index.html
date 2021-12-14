@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <table id="table" onclick="changeFromLiveOrDead(event)">
+
+    </table>
+
+
+
+    <button id="myButton" type="button" onclick="nextGenerationAndEditHTML()">next generation</button>
+    <button type="button" onclick="stopOrContinue()">stop/continue</button>
+    <button onclick="startAgain()"> start again</button>
+
+    <select name="delay" id="delayID" onchange="delay(event)">
+        <option value="very_slow">very slow</option>
+        <option value="slow"> slow</option>
+        <option selected value="normal">normal</option>
+        <option value="fast"> fast</option>
+        <option value="very_fast">very fast</option>
+    </select>
+
+    <select name="liklyhood" id="liklyhood" onchange="liklyhood(event)">
+        <option value="low">low</option>
+        <option selected value="medium">medium</option>
+        <option value="larg"> larg</option>
+    </select>
+
+    <select name="condition" id="condition" onchange="selectCondition(event)">
+        <option selected value="conwy">Conway</option>
+        <option value="hyperActive">Hyper Active</option>
+        <option value="highLife">High Life</option>
+        <option value="spontaneus">Spontaneus</option>
+    </select>
+
+    <select name="number" id="number" onchange="updateNumber(event)">
+        <option value="6">6x6</option>
+        <option value="8">8x8</option>
+        <option value="10">10x10</option>
+        <option value="15">15x15</option>
+        <option value="20">20x20</option>
+        <option value="30">30x30</option>
+        <option value="50">50x50</option>
+        <option value="75">75x75</option>
+        <option value="100">100x100</option>
+    </select>
+
+    <script src="index.js"></script>
+</body>
+
+</html>
