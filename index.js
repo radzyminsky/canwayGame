@@ -263,6 +263,7 @@ function nextGneration() {
     }
     if (flag) {    //that is a stable state
         console.log('start again');
+        alert("you arraived to stable state!!\n if you wont play again, please press OK");
         createCellArray(number);
     }
 }
