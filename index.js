@@ -10,10 +10,14 @@ let Max = 4;
 
 let condition = conditionConway;
 
+let isActive = false;
+
+let shape = rectengular;
 conwaysGame();
 
 let interval = setInterval(nextGenerationAndEditHTML, timeout);
 
+//the function that start the game
 function conwaysGame() {
 
     createCellArray(number);
@@ -72,9 +76,36 @@ function delay(event) {
     }
 }
 
+function shapes(event) {
+
+    switch (event.target.value) {
+        case 'rectengular':
+            shape = rectengular;
+            break;
+        case 'diamond':
+            shape = diamond;
+            break;
+        case 'cross':
+            shape = cross;
+            break;
+        case 'circular':
+            shape = circular;
+            break;
+        case 'ring':
+            shape = ring;
+            break;
+    }
+    table.innerHTML = '';
+    console.log('remove: ' + table);
+    conwaysGame();
+    if (interval) {
+        clearInterval(interval);
+        interval = null;
+        interval = setInterval(nextGenerationAndEditHTML, timeout);
+    }
+}
 function updateNumber(event) {
-    clearInterval(interval);
-    interval = null;
+
 
     switch (event.target.value) {
         case '6':
@@ -108,7 +139,11 @@ function updateNumber(event) {
     table.innerHTML = '';
     console.log('remove: ' + table);
     conwaysGame();
-    interval = setInterval(nextGenerationAndEditHTML, timeout);
+    if (interval) {
+        clearInterval(interval);
+        interval = null;
+        interval = setInterval(nextGenerationAndEditHTML, timeout);
+    }
 }
 
 function stopOrContinue(event) {
@@ -132,11 +167,13 @@ function changeFromLiveOrDead(event) {
     let grandFather = parent.parentNode;
     let j = Array.from(parent.children).indexOf(target);
     let i = Array.from(grandFather.children).indexOf(parent);
-    cellArray[i][j].alive = !cellArray[i][j].alive;
-    if (cellArray[i][j].alive)
-        target.style.backgroundColor = 'crimson';
-    else
-        target.style.backgroundColor = 'white';
+    if (!isWall(i, j)) {
+        cellArray[i][j].alive = !cellArray[i][j].alive;
+        if (cellArray[i][j].alive)
+            target.style.backgroundColor = 'crimson';
+        else
+            target.style.backgroundColor = 'white';
+    }
 }
 
 
@@ -152,11 +189,12 @@ function updateHTML() {
         let tr = table.children.item(i);
         for (j = 0; j < tr.children.length; j++) {
             let td = tr.children.item(j);
-            if (cellArray[i][j].alive) {
+            if (isWall(i, j))
+                td.style.backgroundColor = 'black';
+            else if (cellArray[i][j].alive)
                 td.style.backgroundColor = 'crimson';
-            } else {
+            else
                 td.style.backgroundColor = 'white';
-            }
         }
     }
 }
@@ -168,12 +206,15 @@ function createCellArray(number) {
         cellArray.push([]);
 
         for (let j = 0; j < number; j++) {
-            rand = getRandomInt(Max);
-            if (rand === 0) {
-                cellArray[i].push({ alive: true, neighbors: 0 });
-            } else {
-                cellArray[i].push({ alive: false, neighbors: 0 });
+            if (!isWall(i, j)) {
+                rand = getRandomInt(Max);
+                if (rand === 0)
+                    cellArray[i].push({ alive: true, neighbors: 0 });
+                else
+                    cellArray[i].push({ alive: false, neighbors: 0 });
             }
+            else
+                cellArray[i].push({ alive: isActive, neighbors: 0 });
         }
     }
 }
@@ -190,15 +231,17 @@ function nextGneration() {
     //update neighbors field of each cell
     for (let x = 0; x < number; x++) {
         for (let y = 0; y < number; y++) {
-            cellArray[x][y].neighbors = 0;
-            for (let i = -1; i < 2; i++) {
-                for (let j = -1; j < 2; j++) {
-                    let oneNeighbor_x = x + i;
-                    let oneNeighbor_y = y + j;
-                    if (!(i === 0 && j === 0)) {
-                        if (oneNeighbor_x < number && oneNeighbor_x > -1 && oneNeighbor_y < number && oneNeighbor_y > -1) {
-                            if (cellArray[oneNeighbor_x][oneNeighbor_y].alive) {
-                                cellArray[x][y].neighbors++;
+            if (!isWall(x, y)) {
+                cellArray[x][y].neighbors = 0;
+                for (let i = -1; i < 2; i++) {
+                    for (let j = -1; j < 2; j++) {
+                        let oneNeighbor_x = x + i;
+                        let oneNeighbor_y = y + j;
+                        if (!(i === 0 && j === 0)) {
+                            if (oneNeighbor_x < number && oneNeighbor_x > -1 && oneNeighbor_y < number && oneNeighbor_y > -1) {
+                                if (cellArray[oneNeighbor_x][oneNeighbor_y].alive) {
+                                    cellArray[x][y].neighbors++;
+                                }
                             }
                         }
                     }
@@ -209,10 +252,12 @@ function nextGneration() {
     //update alive field of each cell
     for (let x = 0; x < number; x++) {
         for (let y = 0; y < number; y++) {
-            let cellAkiveTemp = cellArray[x][y].alive;
-            cellArray[x][y].alive = condition(cellArray[x][y].neighbors, cellArray[x][y].alive);
-            if (cellAkiveTemp !== cellArray[x][y].alive) {
-                flag = false;
+            if (!isWall(x, y)) {
+                let cellAkiveTemp = cellArray[x][y].alive;
+                cellArray[x][y].alive = condition(cellArray[x][y].neighbors, cellArray[x][y].alive);
+                if (cellAkiveTemp !== cellArray[x][y].alive) {
+                    flag = false;
+                }
             }
         }
     }
@@ -267,4 +312,54 @@ function conditionHighLife(neighbors, alive) {
 }
 function conditionSpontaneus(neighbors, alive) {
     return (conditionConway(neighbors, alive) || getRandomInt(2));
+}
+
+function isWall(x, y) {
+    return shape(x, y);
+}
+
+function activeWall() {
+    if (shape !== rectengular) {
+        let button = document.getElementById('activeWall');
+        isActive = !isActive;
+        if (isActive)
+            button.innerHTML = 'active wall';
+        else
+            button.innerHTML = "don't active wall";
+        startAgain();
+    }
+}
+
+function rectengular(x, y) {
+    return false;
+}
+function diamond(x, y) {
+
+}
+function cross(x, y) {
+    let x1 = number / 3 - 1;
+    let x2 = 2 * number / 3;
+    if (x > x1 && x < x2 || y > x1 && y < x2)
+        return false;
+    return true;
+}
+function circular(x, y) {
+    let senterPoint = (number - 1) / 2;
+    console.log(senterPoint);
+    let powerRadus = Math.pow(senterPoint, 2);
+    if (Math.pow(x - senterPoint, 2) + Math.pow(y - senterPoint, 2) <= powerRadus)
+        return false;
+    console.log(Math.pow(x - senterPoint, 2) + ', ' + Math.pow(y - senterPoint, 2));
+    return true;
+}
+function ring(x, y) {
+    let senterPoint = (number - 1) / 2;
+    console.log(senterPoint);
+    let powerRadus = Math.pow(senterPoint, 2);
+    let powerRadusOfInternalCircle = Math.pow(senterPoint / 2, 2);
+    if (Math.pow(x - senterPoint, 2) + Math.pow(y - senterPoint, 2) <= powerRadus)
+        if (Math.pow(x - senterPoint, 2) + Math.pow(y - senterPoint, 2) >= powerRadusOfInternalCircle)
+            return false;
+    console.log(Math.pow(x - senterPoint, 2) + ', ' + Math.pow(y - senterPoint, 2));
+    return true;
 }

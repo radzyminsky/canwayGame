@@ -20,6 +20,16 @@
     <button id="myButton" type="button" onclick="nextGenerationAndEditHTML()">next generation</button>
     <button type="button" onclick="stopOrContinue(event)">stop</button>
     <button onclick="startAgain()"> start again</button>
+    <button id="activeWall" onclick="activeWall()"> active wall</button>
+
+    <select name="shapes" id="shapes" onchange="shapes(event)">
+        <option selected value="rectengular"> rectengular</option>
+        <option value="diamond"> diamond</option>
+        <option  value="cross"> cross</option>
+        <option value="circular"> circular</option>
+        <option value="ring"> ring</option>
+    </select>
+
 
     <select name="delay" id="delayID" onchange="delay(event)">
         <option value="very_slow">very slow</option>
