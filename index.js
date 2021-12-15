@@ -2,7 +2,7 @@ var number = 6;
 
 var table = document.getElementById('table');
 
-let boolArray;
+let cellArray;
 
 let timeout = 500;
 
@@ -16,7 +16,7 @@ let interval = setInterval(nextGenerationAndEditHTML, timeout);
 
 function conwaysGame() {
 
-    createBoolArray(number);
+    createCellArray(number);
     for (i = 0; i < number; i++) {
         let tr = document.createElement('tr');
         table.appendChild(tr);
@@ -30,7 +30,7 @@ function conwaysGame() {
 }
 
 function startAgain() {
-    createBoolArray(number);
+    createCellArray(number);
     updateHTML();
 }
 
@@ -105,19 +105,24 @@ function updateNumber(event) {
             number = 100;
             break;
     };
-    table.innerHTML='';
-    console.log('remove: '+table);
+    table.innerHTML = '';
+    console.log('remove: ' + table);
     conwaysGame();
     interval = setInterval(nextGenerationAndEditHTML, timeout);
 }
 
-function stopOrContinue() {
+function stopOrContinue(event) {
+    let button = event.target;
     if (interval) {
         clearInterval(interval);
         interval = null;
+        button.innerHTML = 'continue';
     }
-    else
+    else {
         interval = setInterval(nextGenerationAndEditHTML, timeout);
+        button.innerHTML = 'stop';
+
+    }
 }
 
 function changeFromLiveOrDead(event) {
@@ -127,8 +132,8 @@ function changeFromLiveOrDead(event) {
     let grandFather = parent.parentNode;
     let j = Array.from(parent.children).indexOf(target);
     let i = Array.from(grandFather.children).indexOf(parent);
-    boolArray[i][j] = !boolArray[i][j];
-    if (boolArray[i][j])
+    cellArray[i][j].alive = !cellArray[i][j].alive;
+    if (cellArray[i][j].alive)
         target.style.backgroundColor = 'crimson';
     else
         target.style.backgroundColor = 'white';
@@ -140,7 +145,6 @@ function changeFromLiveOrDead(event) {
 function nextGenerationAndEditHTML() {
     nextGneration();
     updateHTML();
-
 }
 
 function updateHTML() {
@@ -148,7 +152,7 @@ function updateHTML() {
         let tr = table.children.item(i);
         for (j = 0; j < tr.children.length; j++) {
             let td = tr.children.item(j);
-            if (boolArray[i][j]) {
+            if (cellArray[i][j].alive) {
                 td.style.backgroundColor = 'crimson';
             } else {
                 td.style.backgroundColor = 'white';
@@ -158,17 +162,17 @@ function updateHTML() {
 }
 
 
-function createBoolArray(number) {
-    boolArray = []
-    for (i = 0; i < number; i++) {
-        boolArray.push([]);
+function createCellArray(number) {
+    cellArray = []
+    for (let i = 0; i < number; i++) {
+        cellArray.push([]);
 
-        for (j = 0; j < number; j++) {
+        for (let j = 0; j < number; j++) {
             rand = getRandomInt(Max);
             if (rand === 0) {
-                boolArray[i].push(true);
+                cellArray[i].push({ alive: true, neighbors: 0 });
             } else {
-                boolArray[i].push(false);
+                cellArray[i].push({ alive: false, neighbors: 0 });
             }
         }
     }
@@ -183,36 +187,41 @@ function getRandomInt(max) {
 function nextGneration() {
     let flag = true;
 
+    //update neighbors field of each cell
     for (let x = 0; x < number; x++) {
         for (let y = 0; y < number; y++) {
-            let neighbors = 0;
+            cellArray[x][y].neighbors = 0;
             for (let i = -1; i < 2; i++) {
                 for (let j = -1; j < 2; j++) {
                     let oneNeighbor_x = x + i;
                     let oneNeighbor_y = y + j;
                     if (!(i === 0 && j === 0)) {
                         if (oneNeighbor_x < number && oneNeighbor_x > -1 && oneNeighbor_y < number && oneNeighbor_y > -1) {
-                            if (boolArray[oneNeighbor_x][oneNeighbor_y]) {
-                                neighbors++;
+                            if (cellArray[oneNeighbor_x][oneNeighbor_y].alive) {
+                                cellArray[x][y].neighbors++;
                             }
                         }
                     }
-
                 }
             }
-            let cellTemp = boolArray[x][y];
-            boolArray[x][y] = condition(neighbors, boolArray[x][y]);
-            if (cellTemp !== boolArray[x][y]) {
+        }
+    }
+    //update alive field of each cell
+    for (let x = 0; x < number; x++) {
+        for (let y = 0; y < number; y++) {
+            let cellAkiveTemp = cellArray[x][y].alive;
+            cellArray[x][y].alive = condition(cellArray[x][y].neighbors, cellArray[x][y].alive);
+            if (cellAkiveTemp !== cellArray[x][y].alive) {
                 flag = false;
             }
         }
     }
-    if (flag)//that is a stable state
-    {
+    if (flag) {    //that is a stable state
         console.log('start again');
-        createBoolArray(number);
+        createCellArray(number);
     }
 }
+
 function selectCondition(event) {
     switch (event.target.value) {
         case 'conwy':
@@ -230,32 +239,32 @@ function selectCondition(event) {
     }
 }
 
-function conditionConway(neighbors, cell) {
+function conditionConway(neighbors, alive) {
     if (neighbors > 3 || neighbors < 2)
         return false;
     else if (neighbors === 3)
         return true;
     else
-        return cell;
+        return alive;
 }
 // Some details seem to be missing, what happens when the number of neighbors of a living cell is 4 or 5? 
-function conditionHyperActive(neighbors, cell) {
+function conditionHyperActive(neighbors, alive) {
     if (neighbors > 5 || neighbors < 2)
         return false;
     else if (neighbors === 3)
         return true;
     else
-        return cell;
+        return alive;
 }
 //To the best of my knowledge it is the same as the original Canwey
-function conditionHighLife(neighbors, cell) {
+function conditionHighLife(neighbors, alive) {
     if (neighbors > 3 || neighbors < 2)
         return false;
     else if (neighbors === 3)
         return true;
     else
-        return cell;
+        return alive;
 }
-function conditionSpontaneus(neighbors, cell) {
-    return (conditionConway(neighbors, cell) || getRandomInt(2));
+function conditionSpontaneus(neighbors, alive) {
+    return (conditionConway(neighbors, alive) || getRandomInt(2));
 }
