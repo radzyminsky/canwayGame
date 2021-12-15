@@ -167,7 +167,7 @@ function changeFromLiveOrDead(event) {
     let grandFather = parent.parentNode;
     let j = Array.from(parent.children).indexOf(target);
     let i = Array.from(grandFather.children).indexOf(parent);
-    if (!isWall(i, j)) {
+    if (!cellArray[i][j].is_wall) {
         cellArray[i][j].alive = !cellArray[i][j].alive;
         if (cellArray[i][j].alive)
             target.style.backgroundColor = 'crimson';
@@ -189,7 +189,7 @@ function updateHTML() {
         let tr = table.children.item(i);
         for (j = 0; j < tr.children.length; j++) {
             let td = tr.children.item(j);
-            if (isWall(i, j))
+            if (cellArray[i][j].is_wall)
                 td.style.backgroundColor = 'black';
             else if (cellArray[i][j].alive)
                 td.style.backgroundColor = 'crimson';
@@ -209,12 +209,12 @@ function createCellArray(number) {
             if (!isWall(i, j)) {
                 rand = getRandomInt(Max);
                 if (rand === 0)
-                    cellArray[i].push({ alive: true, neighbors: 0 });
+                    cellArray[i].push({ alive: true, neighbors: 0, is_wall: false });
                 else
-                    cellArray[i].push({ alive: false, neighbors: 0 });
+                    cellArray[i].push({ alive: false, neighbors: 0, is_wall: false });
             }
             else
-                cellArray[i].push({ alive: isActive, neighbors: 0 });
+                cellArray[i].push({ alive: isActive, neighbors: 0, is_wall: true });
         }
     }
 }
@@ -231,7 +231,7 @@ function nextGneration() {
     //update neighbors field of each cell
     for (let x = 0; x < number; x++) {
         for (let y = 0; y < number; y++) {
-            if (!isWall(x, y)) {
+            if (!cellArray[x][y].is_wall) {
                 cellArray[x][y].neighbors = 0;
                 for (let i = -1; i < 2; i++) {
                     for (let j = -1; j < 2; j++) {
@@ -252,7 +252,7 @@ function nextGneration() {
     //update alive field of each cell
     for (let x = 0; x < number; x++) {
         for (let y = 0; y < number; y++) {
-            if (!isWall(x, y)) {
+            if (!cellArray[x][y].is_wall) {
                 let cellAkiveTemp = cellArray[x][y].alive;
                 cellArray[x][y].alive = condition(cellArray[x][y].neighbors, cellArray[x][y].alive);
                 if (cellAkiveTemp !== cellArray[x][y].alive) {
@@ -322,11 +322,14 @@ function activeWall() {
     if (shape !== rectengular) {
         let button = document.getElementById('activeWall');
         isActive = !isActive;
-        if (isActive)
+        if (!isActive)
             button.innerHTML = 'active wall';
         else
             button.innerHTML = "don't active wall";
-        startAgain();
+        for (let i = 0; i < number; i++)
+            for (let j = 0; j < number; j++)
+                if (cellArray[i][j].is_wall)
+                    cellArray[i][j].alive = isActive;
     }
 }
 
@@ -334,7 +337,12 @@ function rectengular(x, y) {
     return false;
 }
 function diamond(x, y) {
-
+  //  let abs = number-Math.abs(y - number);
+  let midelOfNumber = (number-1) / 2 ;
+  let moveRightLeft=midelOfNumber-Math.abs(y - midelOfNumber);
+    if (x >= midelOfNumber - moveRightLeft && x <= midelOfNumber + moveRightLeft)
+        return false;
+    return true;
 }
 function cross(x, y) {
     let x1 = number / 3 - 1;
