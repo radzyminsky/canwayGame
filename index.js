@@ -1,30 +1,30 @@
-var number = 6;
+var number = 50;
 
 var table = document.getElementById('table');
 
-let cellArray;
+var cellArray;
 
-let timeout = 500;
+var timeout = 500;
 
-let Max = 4;
+var Max = 4;
 
-let condition = conditionConway;
+var condition = conditionConway;
 
-let isActive = false;
+var isActive = false;
 
-let shape = rectengular;
+var shape = rectengular;
 conwaysGame();
 
-let interval = setInterval(nextGenerationAndEditHTML, timeout);
+var interval = setInterval(nextGenerationAndEditHTML, timeout);
 
 //the function that start the game
 function conwaysGame() {
 
     createCellArray(number);
-    for (i = 0; i < number; i++) {
+    for (let i = 0; i < number; i++) {
         let tr = document.createElement('tr');
         table.appendChild(tr);
-        for (j = 0; j < number; j++) {
+        for (let j = 0; j < number; j++) {
             let td = document.createElement('td');
             tr.appendChild(td);
 
@@ -185,9 +185,9 @@ function nextGenerationAndEditHTML() {
 }
 
 function updateHTML() {
-    for (i = 0; i < table.children.length; i++) {
+    for (let i = 0; i < table.children.length; i++) {
         let tr = table.children.item(i);
-        for (j = 0; j < tr.children.length; j++) {
+        for (let j = 0; j < tr.children.length; j++) {
             let td = tr.children.item(j);
             if (cellArray[i][j].is_wall)
                 td.style.backgroundColor = 'black';
@@ -263,7 +263,7 @@ function nextGneration() {
     }
     if (flag) {    //that is a stable state
         console.log('start again');
-        alert("you arraived to stable state!!\n if you wont play again, please press OK");
+      //  alert("you arraived to stable state!!\n if you wont play again, please press OK");
         createCellArray(number);
     }
 }
